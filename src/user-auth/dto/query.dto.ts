@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNumber, IsEmpty, IsString } from "class-validator"
+import { IsNumber, IsEmpty, IsString } from "class-validator";
 
 export class QueryDto {
     @ApiProperty({

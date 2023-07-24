@@ -6,8 +6,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('School Management')
-    .setDescription('School Management Apis')
+    .setTitle('Railway managements')
+    .setDescription('Railway managements Apis')
     .setVersion('1.0')
     .addTag('IAM')
     .build();

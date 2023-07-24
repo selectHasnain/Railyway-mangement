@@ -1,12 +1,24 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { UserAuthService } from './user-auth.service';
-import { ApiTags, ApiParam, ApiQuery, ApiOperation, ApiBody } from '@nestjs/swagger';
-import { CreateUserDto, QueryDto } from './dto';
+import { ApiTags, ApiParam, ApiQuery, ApiOperation, ApiBody, ApiNoContentResponse } from '@nestjs/swagger';
+import { CreateUserDto, QueryDto,updateUserDto } from './dto';
+import { User } from 'database/entities';
 
 @ApiTags('user-auth')
 @Controller('user-auth')
 export class UserAuthController {
     constructor(private readonly userService: UserAuthService) { }
+
+    @Get()
+    @ApiOperation({
+        summary: 'get all users',
+        description: "get all users which are satisfying the condition"
+    })
+    allUsers(
+        @Query() queryDto: QueryDto
+    ): Promise<User[]> {
+        return this.userService.getAllUsers(queryDto);
+    }
 
     @Post()
     @ApiOperation({
@@ -17,10 +29,10 @@ export class UserAuthController {
         type: CreateUserDto,
         required: true
     })
-    createUser(
+    async createUser(
         @Body() createUserDto: CreateUserDto
-    ): string {
-        return this.userService.createUser();
+    ): Promise<User> {
+        return await this.userService.createUser(createUserDto);
     }
 
     @Get('/:id')
@@ -34,18 +46,26 @@ export class UserAuthController {
     })
     user(
         @Param('id') id: number
-    ): string {
+    ): Promise<User> {
         return this.userService.getUser(id);
     }
 
-    @Get()
+    @Put(':id')
     @ApiOperation({
-        summary: 'get all users',
-        description: "get all users which are satisfying the condition"
+        summary: 'update users',
+        description: "update user by id"
     })
-    allUsers(
-        @Query() queryDto: QueryDto
-    ): string {
-        return this.userService.getAllUsers();
+    async update (@Param('id') id: number, @Body() updateUserDto: updateUserDto): Promise<any> {
+      return this.userService.update(id, updateUserDto);
+    }
+
+    @Delete(':id')
+    @ApiOperation({
+        summary: 'delete users',
+        description: "delete user by id"
+    })
+    deleteUser(@Param('id') id: number): 
+    Promise<void> {
+      return this.userService.delete(id);
     }
 }
