@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { UserAuthService } from './user-auth.service';
 import { ApiTags, ApiParam, ApiQuery, ApiOperation, ApiBody, ApiNoContentResponse } from '@nestjs/swagger';
-import { CreateUserDto, QueryDto,updateUserDto } from './dto';
+import { CreateUserDto, QueryDto,UpdateUserDto,LoginUserDto } from './dto';
 import { User } from 'database/entities';
 
 @ApiTags('user-auth')
@@ -50,22 +50,55 @@ export class UserAuthController {
         return this.userService.getUser(id);
     }
 
-    @Put(':id')
+    @Put('/:id')
     @ApiOperation({
-        summary: 'update users',
-        description: "update user by id"
+        summary: 'update user',
+        description: "update user data by passing id and information to update"
     })
-    async update (@Param('id') id: number, @Body() updateUserDto: updateUserDto): Promise<any> {
-      return this.userService.update(id, updateUserDto);
+    @ApiParam({
+        name: 'id',
+        type: Number,
+        required: true
+    })
+    @ApiBody({
+        type: UpdateUserDto,
+        required: false
+    })
+    async updateStudent(
+        @Param('id') id: number,
+        @Body() updateUser: UpdateUserDto
+    ): Promise<String> {
+        return await this.userService.updateUser(id, updateUser);
     }
 
-    @Delete(':id')
+    @Delete('/:id')
     @ApiOperation({
-        summary: 'delete users',
-        description: "delete user by id"
+        summary: 'delete user',
+        description: "delete user by passing id"
     })
-    deleteUser(@Param('id') id: number): 
-    Promise<void> {
-      return this.userService.delete(id);
+    @ApiParam({
+        name: 'id',
+        type: Number,
+        required: true
+    })
+    async deleteUser(
+        @Param('id') id: number
+    ): Promise<String> {
+        return await this.userService.deleteUser(id);
+    }
+
+    @Post('/login')
+    @ApiOperation({
+        summary: 'User login',
+        description: "user login to use further apis"
+    })
+    @ApiBody({
+        type: LoginUserDto,
+        required: true
+    })
+    async login(
+        @Body() User: LoginUserDto
+    ): Promise<String> {
+        return await this.userService.login(User);
     }
 }

@@ -19,6 +19,11 @@ export class User {
 
     @Column()
     password: string;
+
+    @Column({
+        default: 'active'
+    })
+    status: string;
 }
 
 export interface UserInterface {
@@ -27,4 +32,5 @@ export interface UserInterface {
     phone?: string;
     email?: string;
     password?: string;
+    status?: string;
 }
