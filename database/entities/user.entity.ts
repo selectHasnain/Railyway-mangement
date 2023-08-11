@@ -24,6 +24,7 @@ export class User {
         default: 'active'
     })
     status: string;
+    static password: string;
 }
 
 export interface UserInterface {

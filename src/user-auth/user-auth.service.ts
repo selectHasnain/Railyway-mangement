@@ -5,6 +5,7 @@ import { User, UserInterface } from 'database/entities';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { Login } from 'types';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserAuthService {
@@ -15,9 +16,34 @@ export class UserAuthService {
         private jwtService: JwtService
     ) { }
 
-    async createUser(createUser: CreateUserDto): Promise<User> {
-        return this.userRepository.save(createUser);
+    async createUser(user: UserInterface): Promise<User> {
+        User.password = await bcrypt.hash(User.password, 10);
+        return this.userRepository.save(user);
     }
+
+    async login(user: Login): Promise<String> {
+        let authenticatedUser: User = await this.userRepository.findOne({
+            where: {
+                email: user.email
+            }
+        });
+        authenticatedUser = JSON.parse(JSON.stringify(authenticatedUser));
+
+        if (!authenticatedUser) {
+            throw new NotFoundException("Incorrect email or password");
+        }
+        
+        const isMatch: Boolean = await bcrypt.compare(user.password, authenticatedUser.password);
+
+        if (!isMatch) {
+            throw new NotFoundException("Incorrect email or password");
+        }
+
+        let accessToken = this.jwtService.sign(authenticatedUser, { secret: '${process.env.JWT_SECRET}' });
+        
+        return accessToken;
+    }
+   
 
     getUser(id: number): Promise<User> {
         return this.userRepository.findOneBy({ id });
@@ -37,21 +63,4 @@ export class UserAuthService {
         return "user updated successfully";
     }
 
-    async login(user: Login): Promise<String> {
-        let authenticatedUser = await this.userRepository.findOne({
-            where: {
-                ...user
-            }
-        });
-        authenticatedUser = JSON.parse(JSON.stringify(authenticatedUser));
-
-        if (!authenticatedUser) {
-            throw new NotFoundException("Incorrect email or password");
-        }
-
-        let accessToken = this.jwtService.sign(authenticatedUser, { secret: '${process.env.JWT_SECRET}' });
-
-        return accessToken;
-    }
-   
 }

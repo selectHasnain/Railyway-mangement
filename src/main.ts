@@ -10,6 +10,7 @@ async function bootstrap() {
     .setDescription('Railway managements Apis')
     .setVersion('1.0')
     .addTag('IAM')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

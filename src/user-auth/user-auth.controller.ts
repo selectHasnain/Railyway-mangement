@@ -1,14 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query,Request,UseGuards } from '@nestjs/common';
 import { UserAuthService } from './user-auth.service';
-import { ApiTags, ApiParam, ApiQuery, ApiOperation, ApiBody, ApiNoContentResponse } from '@nestjs/swagger';
+import { ApiTags, ApiParam, ApiQuery, ApiOperation, ApiBody, ApiNoContentResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateUserDto, QueryDto,UpdateUserDto,LoginUserDto } from './dto';
 import { User } from 'database/entities';
+import { AuthGuard } from 'utilities/auth-guard.utils';
 
+@ApiBearerAuth()
 @ApiTags('user-auth')
 @Controller('user-auth')
 export class UserAuthController {
     constructor(private readonly userService: UserAuthService) { }
-
+    
     @Get()
     @ApiOperation({
         summary: 'get all users',
@@ -19,7 +21,7 @@ export class UserAuthController {
     ): Promise<User[]> {
         return this.userService.getAllUsers(queryDto);
     }
-
+    
     @Post()
     @ApiOperation({
         summary: 'create user',
@@ -35,6 +37,7 @@ export class UserAuthController {
         return await this.userService.createUser(createUserDto);
     }
 
+    @UseGuards(AuthGuard)
     @Get('/:id')
     @ApiOperation({
         summary: 'get user',
@@ -50,6 +53,7 @@ export class UserAuthController {
         return this.userService.getUser(id);
     }
 
+    @UseGuards(AuthGuard)
     @Put('/:id')
     @ApiOperation({
         summary: 'update user',
@@ -66,11 +70,13 @@ export class UserAuthController {
     })
     async updateStudent(
         @Param('id') id: number,
-        @Body() updateUser: UpdateUserDto
+        @Body() updateUser: UpdateUserDto,
+        @Request() req: Request
     ): Promise<String> {
-        return await this.userService.updateUser(id, updateUser);
+        return await this.userService.updateUser(req['user'].id, updateUser);
     }
 
+    @UseGuards(AuthGuard)
     @Delete('/:id')
     @ApiOperation({
         summary: 'delete user',
@@ -82,9 +88,10 @@ export class UserAuthController {
         required: true
     })
     async deleteUser(
-        @Param('id') id: number
+        @Param('id') id: number,
+        @Request() req: Request
     ): Promise<String> {
-        return await this.userService.deleteUser(id);
+        return await this.userService.deleteUser(req['user'].id);
     }
 
     @Post('/login')
