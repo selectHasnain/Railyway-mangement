@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto, QueryDto, UpdateUserDto } from './dto';
+import { CreateUserDto, QueryDto, UpdateUserDto,ticketDto } from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User, UserInterface } from 'database/entities';
+import { User, UserInterface,ticket,ticketInterface } from 'database/entities';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { Login } from 'types';
@@ -12,6 +12,9 @@ export class UserAuthService {
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>,
+
+        @InjectRepository(ticket)
+        private ticketRepository: Repository<ticket>,
 
         private jwtService: JwtService
     ) { }

@@ -2,12 +2,12 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UserAuthService } from './user-auth.service';
 import { UserAuthController } from './user-auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from 'database/entities';
+import { User,ticket } from 'database/entities';
 import { JwtModule } from '@nestjs/jwt';
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]),
+  imports: [TypeOrmModule.forFeature([User,ticket]),
   JwtModule.register({
     global: true,
     signOptions: { expiresIn: '3000s' },

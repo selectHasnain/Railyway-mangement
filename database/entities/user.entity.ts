@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { ticket } from './ticket.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity()
 export class User {
@@ -25,6 +26,9 @@ export class User {
     })
     status: string;
     static password: string;
+
+    @OneToMany(() => ticket, (ticket) => ticket.user)
+    ticket: ticket[]
 }
 
 export interface UserInterface {
