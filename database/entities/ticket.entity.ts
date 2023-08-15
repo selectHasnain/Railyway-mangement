@@ -15,7 +15,7 @@ export class ticket {
     @Column()
     date: string;
 
-    @ManyToOne(() => User, (user) => user.ticket)
+    @ManyToOne(() => User, (user) => user.tickets)
     user: User
 }
 

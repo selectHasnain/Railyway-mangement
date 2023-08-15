@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsNotEmpty, IsString } from "class-validator";
 
-export class ticketDto {
+export class AddTicketDto {
     [key: string]: string | undefined;
     [key: symbol]: string | undefined;
 

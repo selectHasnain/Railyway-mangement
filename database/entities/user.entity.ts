@@ -28,7 +28,7 @@ export class User {
     static password: string;
 
     @OneToMany(() => ticket, (ticket) => ticket.user)
-    ticket: ticket[]
+    tickets: ticket[]
 }
 
 export interface UserInterface {

@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query,Request,UseGuards } from '@nestjs/common';
 import { UserAuthService } from './user-auth.service';
 import { ApiTags, ApiParam, ApiQuery, ApiOperation, ApiBody, ApiNoContentResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { CreateUserDto, QueryDto,UpdateUserDto,LoginUserDto,ticketDto } from './dto';
+import { CreateUserDto, QueryDto,UpdateUserDto,LoginUserDto,AddTicketDto } from './dto';
 import { User,ticket } from 'database/entities';
 import { AuthGuard } from 'utilities/auth-guard.utils';
 
