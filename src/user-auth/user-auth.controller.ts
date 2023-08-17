@@ -3,7 +3,7 @@ import { UserAuthService } from './user-auth.service';
 import { ApiTags, ApiParam, ApiQuery, ApiOperation, ApiBody, ApiNoContentResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateUserDto, QueryDto,UpdateUserDto,LoginUserDto,AddTicketDto } from './dto';
 import { User,ticket } from 'database/entities';
-import { AuthGuard } from 'utilities/auth-guard.utils';
+import { AuthGuard } from 'utils/auth-guard.utils';
 
 @ApiBearerAuth()
 @ApiTags('user-auth')

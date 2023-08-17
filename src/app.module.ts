@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { UserAuthController } from './user-auth/user-auth.controller';
 import { UsersAuthModule } from './user-auth/user-auth.module';
 import { UserAuthService } from './user-auth/user-auth.service';
-import { DatabaseModule } from 'database/databaseClient';
+import { DatabaseModule } from 'database/database.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({

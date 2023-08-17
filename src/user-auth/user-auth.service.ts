@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { Login } from 'types';
 import * as bcrypt from 'bcrypt';
-
+import { encrypt } from 'utils/helper';
 @Injectable()
 export class UserAuthService {
     constructor(
@@ -20,7 +20,7 @@ export class UserAuthService {
     ) { }
 
     async createUser(user: UserInterface): Promise<User> {
-        User.password = await bcrypt.hash(User.password, 10);
+        user.password = await bcrypt.hash(user.password, 10);
         return this.userRepository.save(user);
     }
 
@@ -44,7 +44,7 @@ export class UserAuthService {
 
         let accessToken = this.jwtService.sign(authenticatedUser, { secret: '${process.env.JWT_SECRET}' });
         
-        return accessToken;
+        return  await encrypt(accessToken);;
     }
    
 
