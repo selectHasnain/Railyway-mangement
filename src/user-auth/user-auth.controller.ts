@@ -62,7 +62,7 @@ export class UserAuthController {
     @ApiParam({
         name: 'id',
         type: Number,
-        required: true
+        required: false
     })
     @ApiBody({
         type: UpdateUserDto,
@@ -73,7 +73,7 @@ export class UserAuthController {
         @Body() updateUser: UpdateUserDto,
         @Request() req: Request
     ): Promise<String> {
-        return await this.userService.updateUser(req['user'].id, updateUser);
+        return await this.userService.updateUser(req['user'].id,updateUser);
     }
 
     @UseGuards(AuthGuard)
@@ -85,13 +85,14 @@ export class UserAuthController {
     @ApiParam({
         name: 'id',
         type: Number,
-        required: true
+        required: false
     })
     async deleteUser(
         @Param('id') id: number,
         @Request() req: Request
     ): Promise<String> {
         return await this.userService.deleteUser(req['user'].id);
+        
     }
 
     @Post('/login')
@@ -107,5 +108,59 @@ export class UserAuthController {
         @Body() User: LoginUserDto
     ): Promise<String> {
         return await this.userService.login(User);
+    }
+
+    /// ticket apis
+
+    @UseGuards(AuthGuard)
+    @Post('/:id/tickets')
+    @ApiOperation({
+        summary: 'add ticket',
+        description: "add user ticket"
+    })
+    @ApiParam({
+        name: 'id',
+        type: Number,
+        required: false
+    })
+    @ApiBody({
+        type: AddTicketDto,
+        required: true
+    })
+    async ticket(
+        @Request() req: Request,
+        @Body() addTicketDto: AddTicketDto
+    ): Promise<ticket> {
+        return await this.userService.addTicket(req['user'], addTicketDto);
+    }
+
+    @Get('/:id/ticket')
+    @ApiOperation({
+        summary: 'get single or all ticket',
+        description: "get single ticket by passing id otherwise will return all tickets"
+    })
+    async tickets(
+        @Query() queryDto: QueryDto
+    ): Promise<ticket[]> {
+        return await this.userService.getTicket(queryDto);
+    }
+
+
+    @UseGuards(AuthGuard)
+    @Get('/:id')
+    @ApiOperation({
+        summary: 'get user tickets',
+        description: "get user tickets"
+    })
+    @ApiParam({
+        name: 'id',
+        type: Number,
+        required: false
+    })
+    async userTickets(
+        @Param('id') id: number,
+        @Request() req: Request
+    ): Promise<User> {
+        return await this.userService.getUserTickets(req['user'].id);
     }
 }

@@ -23,4 +23,5 @@ export interface ticketInterface {
     status?: string;
     noOfPassenger?: string;
     date?: string;
+    user?: User;
 }

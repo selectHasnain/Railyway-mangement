@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User, UserInterface,ticket,ticketInterface } from 'database/entities';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { Login } from 'types';
+import { Login, Query } from 'types';
 import * as bcrypt from 'bcrypt';
 import { encrypt } from 'utils/helper';
 @Injectable()
@@ -66,4 +66,29 @@ export class UserAuthService {
         return "user updated successfully";
     }
 
+    // Tickets Apis
+
+    async addTicket(user: User, addTicket: ticketInterface): Promise<ticket> {
+        addTicket.user = user;
+        return this.ticketRepository.save(addTicket);
+    }
+
+    async getTicket(queryDto: Query): Promise<ticket[]> {
+        let queryCondition: any = {};
+
+        queryDto.id && (queryCondition.id = queryDto.id);
+
+        return this.ticketRepository.find({
+            where: queryCondition
+        });
+    }
+
+    async getUserTickets(id: number): Promise<User> {
+        return this.userRepository.findOne({
+            where: { id },
+            relations: {
+                tickets: true,
+            },
+        });
+    }
 }
