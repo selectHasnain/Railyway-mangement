@@ -3,6 +3,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity()
 export class User {
+
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -25,10 +26,9 @@ export class User {
         default: 'active'
     })
     status: string;
-    static password: string;
 
     @OneToMany(() => ticket, (ticket) => ticket.user)
-    tickets: ticket[]
+    tickets: ticket[];
 }
 
 export interface UserInterface {
