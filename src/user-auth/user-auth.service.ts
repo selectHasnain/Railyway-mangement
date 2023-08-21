@@ -1,14 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto, QueryDto, UpdateUserDto,AddTicketDto,resetPasswordDto} from './dto';
+import {QueryDto} from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import {User, UserInterface,ticket,ticketInterface } from 'database/entities';
-import { FindOneOptions, Repository } from 'typeorm';
+import {Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { Login, Query } from 'types';
 import * as bcrypt from 'bcrypt';
-import { encrypt } from 'utils/helper';
-import * as crypto from 'crypto';
-import * as nodemailer from 'nodemailer'
+import { encrypt,sendMail,generateToken } from 'utils/helper';
 
 @Injectable()
 export class UserAuthService {
@@ -95,46 +93,15 @@ export class UserAuthService {
         });
     }
 
-    async generateResetToken(email:User["email"]): Promise<string> {
-      const token = crypto.randomBytes(2).toString('hex');
-      console.log(`Reset Token for ${email}: ${token}`);
-      return token;
-    }
-    async sendResetPasswordEmail(email:User["email"], token: string): Promise<void> {
-      const transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        auth: {
-          user: 'ha2320133@gmail.com',
-          pass: 'mwrrlysoseyiqjmf',
-        },
-      });
-  
-      const mailOptions = {
-        from: 'ha2320133@gmail.com',
-        to: email,
-        subject: 'Password Reset',
-        html: `Click <a href="http://yourwebsite.com/reset-password/${token}">here</a> to reset your password.`,
-      };
-  
-      await transporter.sendMail(mailOptions);
+    async forgetPassword(email: string): Promise<string> {
+        let user = await this.userRepository.findOne({ where: { email } });
+
+        if (!user) {
+            throw new NotFoundException("user does not exist");
+        }
+
+        let token = generateToken();
+        return sendMail(email, token);
     }
 
-  
-
-// ...
-
-async requestPasswordReset(resetPasswordDto: resetPasswordDto): Promise<void> {
-const findOptions: FindOneOptions<User> = {
-  where: { email: resetPasswordDto.email },
-};
-
-const user = await this.userRepository.findOne(findOptions);
-
-if (!user) {
-  throw new Error('User not found');
 }
-
-const resetToken = await this.generateResetToken(user.email);
- await this.sendResetPasswordEmail(user.email, resetToken);
-}
-  }

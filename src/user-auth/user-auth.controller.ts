@@ -1,11 +1,9 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Query,Request,UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get,Param, Post, Put, Query,Request,UseGuards } from '@nestjs/common';
 import { UserAuthService } from './user-auth.service';
-import { ApiTags, ApiParam, ApiQuery, ApiOperation, ApiBody, ApiNoContentResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { CreateUserDto, QueryDto,UpdateUserDto,LoginUserDto,AddTicketDto,resetPasswordDto } from './dto';
+import { ApiTags, ApiParam,ApiOperation, ApiBody,ApiBearerAuth } from '@nestjs/swagger';
+import { CreateUserDto, QueryDto,UpdateUserDto,LoginUserDto,AddTicketDto,ForgetPasswordDto } from './dto';
 import {User,ticket } from 'database/entities';
 import { AuthGuard } from 'utils/auth-guard.utils'
-import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
 
 @ApiBearerAuth()
 @ApiTags('user-auth')
@@ -165,18 +163,19 @@ export class UserAuthController {
     ): Promise<User> {
         return await this.userService.getUserTickets(req['user'].id);
     }
-
-    @Post('reset-password')
+    @Post('forgetPassword')
     @ApiOperation({
-        summary: 'reset user password',
-        description: "reset password"
+        summary: 'password forgot',
+        description: "send your email to get token and use the token to then reset passowrd"
     })
-    async resetPassword(
-    @Body() resetPasswordDto: resetPasswordDto
+    @ApiBody({
+        type: ForgetPasswordDto,
+        required: true
+    })
+    async forgetPassword(
+        @Body() forgetPassword: ForgetPasswordDto
     ): Promise<string> {
-      const token = await this.userService.generateResetToken(resetPasswordDto.email);
-      await this.userService.sendResetPasswordEmail(resetPasswordDto.email, token);
-      return 'Reset email sent successfully';
+        return await this.userService.forgetPassword(forgetPassword.email);
     }
 
 }
