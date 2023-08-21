@@ -27,6 +27,9 @@ export class User {
     })
     status: string;
 
+    @Column()
+    token: string;
+
     @OneToMany(() => ticket, (ticket) => ticket.user)
     tickets: ticket[];
 }

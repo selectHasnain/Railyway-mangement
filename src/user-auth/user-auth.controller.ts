@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get,Param, Post, Put, Query,Request,UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get,NotFoundException,Param, Post, Put, Query,Request,UseGuards } from '@nestjs/common';
 import { UserAuthService } from './user-auth.service';
 import { ApiTags, ApiParam,ApiOperation, ApiBody,ApiBearerAuth } from '@nestjs/swagger';
-import { CreateUserDto, QueryDto,UpdateUserDto,LoginUserDto,AddTicketDto,ForgetPasswordDto } from './dto';
+import { CreateUserDto, QueryDto,UpdateUserDto,LoginUserDto,AddTicketDto,ForgetPasswordDto, VerifyTokenDto } from './dto';
 import {User,ticket } from 'database/entities';
 import { AuthGuard } from 'utils/auth-guard.utils'
+import * as bcrypt from 'bcrypt';
 
 @ApiBearerAuth()
 @ApiTags('user-auth')
@@ -163,6 +164,7 @@ export class UserAuthController {
     ): Promise<User> {
         return await this.userService.getUserTickets(req['user'].id);
     }
+
     @Post('forgetPassword')
     @ApiOperation({
         summary: 'password forgot',
@@ -177,5 +179,25 @@ export class UserAuthController {
     ): Promise<string> {
         return await this.userService.forgetPassword(forgetPassword.email);
     }
+    /***************************************************************************** */
 
+    
+    @Post('verifyToken')
+    @ApiOperation({
+        summary: 'verify Token',
+        description: ""
+    })
+    @ApiBody({
+        type: VerifyTokenDto,
+        required: true
+    })
+  async verifyOtp(@Body() VerifyTokenDto: VerifyTokenDto): Promise<string> {
+    try {
+     return await this.userService.verifyTokenAndUpdatePassword(VerifyTokenDto);
+    } catch (error) {
+      throw new BadRequestException('Invalid OTP.');
+    }
+  }
+   
+   
 }

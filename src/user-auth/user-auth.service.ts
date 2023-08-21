@@ -1,5 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import {QueryDto} from './dto';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {QueryDto, VerifyTokenDto} from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import {User, UserInterface,ticket,ticketInterface } from 'database/entities';
 import {Repository } from 'typeorm';
@@ -104,4 +104,32 @@ export class UserAuthService {
         return sendMail(email, token);
     }
 
-}
+    /************************************************************************* */
+    async verifyTokenAndUpdatePassword(verifyTokenDto: VerifyTokenDto): Promise<string> {
+       
+        const { email, token,newPassword} = verifyTokenDto;
+    
+        const user = await this.userRepository.findOne({ where: { email } });
+       
+        if (!user) {
+          throw new Error('User not found');
+        }
+        
+        console.log(verifyTokenDto)
+
+        if (user.token !== token) {
+            console.log(sendMail.prototype)
+          throw new Error('Invalid OTP');
+        }
+    
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+    
+        await this.userRepository.save(user)
+
+        return 'Password updated successfully';
+    }
+
+
+   
+      }
