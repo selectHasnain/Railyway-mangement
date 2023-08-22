@@ -5,7 +5,6 @@ import { CreateUserDto, QueryDto,UpdateUserDto,
         LoginUserDto,AddTicketDto,ForgetPasswordDto, VerifyTokenDto,ChangePasswordDto } from './dto';
 import {User,ticket } from 'database/entities';
 import { AuthGuard } from 'utils/auth-guard.utils'
-import { promises } from 'dns';
 
 @ApiBearerAuth()
 @ApiTags('user-auth')
@@ -194,7 +193,6 @@ export class UserAuthController {
         return await this.userService.getUserTickets(req['user'].id);
     }
 
-    /******************************************************* */
     @UseGuards(AuthGuard)
     @Post('changePassword')
     @ApiOperation({

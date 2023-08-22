@@ -129,9 +129,6 @@ export class UserAuthService {
         });
     }
 
-
-    /************************************************************************** */
-
     async changePassword(userId: number,changePasswordDto: ChangePasswordDto): Promise<string> {
         const {oldPassword,newPassword} = changePasswordDto;
     
