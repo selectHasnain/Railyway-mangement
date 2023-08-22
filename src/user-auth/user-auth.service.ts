@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import {QueryDto, VerifyTokenDto} from './dto';
+import {QueryDto, VerifyTokenDto,ChangePasswordDto} from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import {User, UserInterface,ticket,ticketInterface } from 'database/entities';
 import {Repository } from 'typeorm';
@@ -48,7 +48,6 @@ export class UserAuthService {
         return  await encrypt(accessToken);;
     }
    
-
     getUser(id: number): Promise<User> {
         return this.userRepository.findOneBy({ id });
     }
@@ -67,7 +66,44 @@ export class UserAuthService {
         return "user updated successfully";
     }
 
-    // Tickets Apis
+    async forgetPassword(email: string): Promise<string> {
+        let user = await this.userRepository.findOne({ where: { email } });
+
+        if (!user) {
+            throw new NotFoundException("user does not exist");
+        }
+
+        let token = generateToken();
+
+        user.token = token;
+        await this.userRepository.save(user)
+
+        return sendMail(email, token);
+    }
+
+    async UpdatePassword(verifyTokenDto: VerifyTokenDto): Promise<string> {
+       
+        const {token,newPassword} = verifyTokenDto;
+    
+        const user = await this.userRepository.findOne({ where: { token } });
+       
+        if (!user) {
+          throw new  BadRequestException('User not found');
+        }
+        
+
+        if (user.token !== token) {
+          throw new BadRequestException('Invalid OTP');
+        }
+    
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword
+        user.token = null;
+    
+        await this.userRepository.save(user)
+
+        return 'Password updated successfully';
+    }
 
     async addTicket(user: User, addTicket: ticketInterface): Promise<ticket> {
         addTicket.user = user;
@@ -93,43 +129,31 @@ export class UserAuthService {
         });
     }
 
-    async forgetPassword(email: string): Promise<string> {
-        let user = await this.userRepository.findOne({ where: { email } });
 
-        if (!user) {
-            throw new NotFoundException("user does not exist");
-        }
+    /************************************************************************** */
 
-        let token = generateToken();
-        return sendMail(email, token);
-    }
-
-    /************************************************************************* */
-    async verifyTokenAndUpdatePassword(verifyTokenDto: VerifyTokenDto): Promise<string> {
-       
-        const { email, token,newPassword} = verifyTokenDto;
+    async changePassword(userId: number,changePasswordDto: ChangePasswordDto): Promise<string> {
+        const {oldPassword,newPassword} = changePasswordDto;
     
-        const user = await this.userRepository.findOne({ where: { email } });
-       
-        if (!user) {
-          throw new Error('User not found');
-        }
+        const user = await this.userRepository.findOne({ where: { id:userId } })
         
-        console.log(verifyTokenDto)
+        if (!user) {
+            throw new BadRequestException('User not found');
+        }
 
-        if (user.token !== token) {
-            console.log(sendMail.prototype)
-          throw new Error('Invalid OTP');
+        const isMatch: Boolean = await bcrypt.compare(user.password, changePasswordDto.oldPassword);
+
+        if (isMatch) {
+            throw new BadRequestException('Invalid Password');
         }
     
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-        user.password = hashedPassword;
+        user.password = hashedPassword
     
         await this.userRepository.save(user)
 
-        return 'Password updated successfully';
+        return ' change Password successfully';
     }
+    
+}
 
-
-   
-      }

@@ -1,10 +1,11 @@
-import { BadRequestException, Body, Controller, Delete, Get,NotFoundException,Param, Post, Put, Query,Request,UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get,Param, Post, Put, Query,Req,Request,UseGuards } from '@nestjs/common';
 import { UserAuthService } from './user-auth.service';
 import { ApiTags, ApiParam,ApiOperation, ApiBody,ApiBearerAuth } from '@nestjs/swagger';
-import { CreateUserDto, QueryDto,UpdateUserDto,LoginUserDto,AddTicketDto,ForgetPasswordDto, VerifyTokenDto } from './dto';
+import { CreateUserDto, QueryDto,UpdateUserDto,
+        LoginUserDto,AddTicketDto,ForgetPasswordDto, VerifyTokenDto,ChangePasswordDto } from './dto';
 import {User,ticket } from 'database/entities';
 import { AuthGuard } from 'utils/auth-guard.utils'
-import * as bcrypt from 'bcrypt';
+import { promises } from 'dns';
 
 @ApiBearerAuth()
 @ApiTags('user-auth')
@@ -36,6 +37,52 @@ export class UserAuthController {
         @Body() createUserDto: CreateUserDto
     ): Promise<User> {
         return await this.userService.createUser(createUserDto);
+    }
+
+    @Post('/login')
+    @ApiOperation({
+        summary: 'User login',
+        description: "user login to use further apis"
+    })
+    @ApiBody({
+        type: LoginUserDto,
+        required: true
+    })
+    async login(
+        @Body() User: LoginUserDto
+    ): Promise<String> {
+        return await this.userService.login(User);
+    }
+
+    @Post('forgetPassword')
+    @ApiOperation({
+        summary: 'password forgot',
+        description: "send your email to get token and use the token to then reset Password"
+    })
+    @ApiBody({
+        type: ForgetPasswordDto,
+        required: true
+    })
+    async forgetPassword(
+        @Body() forgetPassword: ForgetPasswordDto
+    ): Promise<string> {
+        return await this.userService.forgetPassword(forgetPassword.email);
+    }
+
+    
+    @Post('verifyToken')
+    @ApiOperation({
+        summary: 'verify Token',
+        description: ""
+    })
+    @ApiBody({
+        type: VerifyTokenDto,
+        required: true
+    })
+    async verifyToken(
+        @Body() VerifyTokenDto: VerifyTokenDto
+    ): Promise<string> {
+        return await this.userService.UpdatePassword(VerifyTokenDto);
     }
 
     @UseGuards(AuthGuard)
@@ -96,23 +143,6 @@ export class UserAuthController {
         
     }
 
-    @Post('/login')
-    @ApiOperation({
-        summary: 'User login',
-        description: "user login to use further apis"
-    })
-    @ApiBody({
-        type: LoginUserDto,
-        required: true
-    })
-    async login(
-        @Body() User: LoginUserDto
-    ): Promise<String> {
-        return await this.userService.login(User);
-    }
-
-    /// ticket apis
-
     @UseGuards(AuthGuard)
     @Post('/:id/tickets')
     @ApiOperation({
@@ -146,7 +176,6 @@ export class UserAuthController {
         return await this.userService.getTicket(queryDto);
     }
 
-
     @UseGuards(AuthGuard)
     @Get('/:id')
     @ApiOperation({
@@ -165,39 +194,23 @@ export class UserAuthController {
         return await this.userService.getUserTickets(req['user'].id);
     }
 
-    @Post('forgetPassword')
+    /******************************************************* */
+    @UseGuards(AuthGuard)
+    @Post('changePassword')
     @ApiOperation({
-        summary: 'password forgot',
-        description: "send your email to get token and use the token to then reset passowrd"
-    })
-    @ApiBody({
-        type: ForgetPasswordDto,
-        required: true
-    })
-    async forgetPassword(
-        @Body() forgetPassword: ForgetPasswordDto
-    ): Promise<string> {
-        return await this.userService.forgetPassword(forgetPassword.email);
-    }
-    /***************************************************************************** */
-
-    
-    @Post('verifyToken')
-    @ApiOperation({
-        summary: 'verify Token',
+        summary: 'Change Password',
         description: ""
     })
     @ApiBody({
-        type: VerifyTokenDto,
+        type: ChangePasswordDto,
         required: true
     })
-  async verifyOtp(@Body() VerifyTokenDto: VerifyTokenDto): Promise<string> {
-    try {
-     return await this.userService.verifyTokenAndUpdatePassword(VerifyTokenDto);
-    } catch (error) {
-      throw new BadRequestException('Invalid OTP.');
+    async changePassword(
+        @Body() ChangePasswordDto: ChangePasswordDto,
+        @Request() req: Request
+    ): Promise<string> {
+        const userId = req['user'].id;
+        return await this.userService.changePassword(userId, ChangePasswordDto);
     }
-  }
-   
-   
+
 }

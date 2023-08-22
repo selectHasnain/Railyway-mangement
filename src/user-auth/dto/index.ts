@@ -5,3 +5,4 @@ export * from './login-user.dto';
 export * from './add-ticket.dto';
 export * from './forget-password.dto'
 export * from './verify-token.dto';
+export * from './change-password.dto';

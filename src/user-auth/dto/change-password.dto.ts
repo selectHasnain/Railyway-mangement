@@ -1,25 +1,23 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsNotEmpty, IsString } from "class-validator";
 
-export class VerifyTokenDto {
+export class ChangePasswordDto {
     [key: string]: string | undefined;
     [key: symbol]: string | undefined;
 
     @ApiProperty({
-        description: "Token of the user",
+        description: "old password of the user",
         required: true
     })
     @IsNotEmpty()
     @IsString()
-    token: string;
+    oldPassword: string;
 
     @ApiProperty({
-        description: "new password of the user",
+        description: " new password of the user",
         required: true
     })
     @IsNotEmpty()
     @IsString()
     newPassword: string;
-
-
-  }
+}
